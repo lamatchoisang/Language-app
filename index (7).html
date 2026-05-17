@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Language Learning App — Learn Smarter, Speak Faster</title>
+<style>
+  /* ============ RESET & BASE ============ */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:#0a0a14;
+    color:#e6e6f0;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  :root{
+    --primary:#6366f1;
+    --secondary:#ec4899;
+    --accent:#06b6d4;
+    --bg:#0a0a14;
+    --bg-2:#13132a;
+    --card:rgba(255,255,255,.05);
+    --border:rgba(255,255,255,.1);
+    --text:#e6e6f0;
+    --muted:#a0a0b8;
+    --grad:linear-gradient(135deg,#6366f1 0%,#ec4899 50%,#06b6d4 100%);
+    --glow:0 0 40px rgba(99,102,241,.4);
+  }
+  ::-webkit-scrollbar{width:10px}
+  ::-webkit-scrollbar-track{background:#0a0a14}
+  ::-webkit-scrollbar-thumb{background:var(--grad);border-radius:10px}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  img{max-width:100%;display:block}
+  section{padding:100px 6%;position:relative}
+  h1,h2,h3{line-height:1.2;font-weight:700}
+  h2{font-size:clamp(2rem,4vw,3rem);text-align:center;margin-bottom:1rem}
+  .section-sub{text-align:center;color:var(--muted);max-width:600px;margin:0 auto 4rem}
+
+  /* ============ FLOATING BG BLOBS ============ */
+  .blob{position:fixed;border-radius:50%;filter:blur(100px);opacity:.3;z-index:-1;animation:float 20s infinite ease-in-out}
+  .blob.b1{width:500px;height:500px;background:#6366f1;top:-100px;left:-100px}
+  .blob.b2{width:400px;height:400px;background:#ec4899;bottom:-100px;right:-100px;animation-delay:-7s}
+  .blob.b3{width:350px;height:350px;background:#06b6d4;top:50%;left:50%;animation-delay:-14s}
+  @keyframes float{
+    0%,100%{transform:translate(0,0) scale(1)}
+    33%{transform:translate(50px,-50px) scale(1.1)}
+    66%{transform:translate(-30px,30px) scale(.9)}
+  }
+
+  /* ============ NAVBAR ============ */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    padding:1rem 6%;
+    display:flex;justify-content:space-between;align-items:center;
+    background:rgba(10,10,20,.7);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border);
+    transition:.3s;
+  }
+  nav.scrolled{padding:.7rem 6%;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  .logo{font-size:1.4rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .nav-links{display:flex;gap:2rem;list-style:none}
+  .nav-links a{position:relative;transition:.3s;font-size:.95rem}
+  .nav-links a:hover{color:var(--primary)}
+  .nav-links a::after{content:'';position:absolute;bottom:-5px;left:0;width:0;height:2px;background:var(--grad);transition:.3s}
+  .nav-links a:hover::after{width:100%}
+  .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;z-index:101}
+  .hamburger span{width:25px;height:3px;background:var(--text);border-radius:3px;transition:.3s}
+  .hamburger.active span:nth-child(1){transform:rotate(45deg) translate(6px,6px)}
+  .hamburger.active span:nth-child(2){opacity:0}
+  .hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(6px,-6px)}
+
+  /* ============ HERO ============ */
+  .hero{
+    min-height:100vh;display:flex;align-items:center;
+    padding-top:120px;gap:4rem;flex-wrap:wrap;justify-content:space-between;
+  }
+  .hero-content{flex:1;min-width:300px;max-width:600px}
+  .hero-badge{
+    display:inline-block;padding:.5rem 1rem;
+    background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);
+    border-radius:50px;font-size:.85rem;margin-bottom:1.5rem;color:var(--primary);
+  }
+  .hero h1{font-size:clamp(2.5rem,5vw,4rem);margin-bottom:1.5rem}
+  .hero h1 span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .hero p{color:var(--muted);font-size:1.15rem;margin-bottom:2rem;max-width:500px}
+  .hero-buttons{display:flex;gap:1rem;flex-wrap:wrap}
+  .btn{
+    padding:.9rem 2rem;border-radius:50px;font-weight:600;font-size:1rem;
+    transition:.3s;display:inline-flex;align-items:center;gap:.5rem;
+  }
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:var(--glow)}
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 50px rgba(99,102,241,.6)}
+  .btn-outline{border:1px solid var(--border);background:var(--card);backdrop-filter:blur(10px)}
+  .btn-outline:hover{border-color:var(--primary);transform:translateY(-3px)}
+
+  /* Hero illustration */
+  .hero-visual{flex:1;min-width:300px;max-width:500px;position:relative;height:450px}
+  .float-card{
+    position:absolute;padding:1.2rem;background:var(--card);
+    backdrop-filter:blur(20px);border:1px solid var(--border);
+    border-radius:20px;animation:floatCard 4s ease-in-out infinite;
+    box-shadow:0 20px 60px rgba(0,0,0,.4);
+  }
+  @keyframes floatCard{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+  .fc-1{top:0;left:10%;animation-delay:0s}
+  .fc-2{top:30%;right:0;animation-delay:-1.3s}
+  .fc-3{bottom:10%;left:0;animation-delay:-2.6s}
+  .fc-4{bottom:20%;right:15%;animation-delay:-1s}
+  .float-card .flag{font-size:2rem;margin-bottom:.3rem}
+  .float-card .word{font-weight:700;font-size:1.1rem}
+  .float-card .trans{color:var(--muted);font-size:.85rem}
+  .hero-orb{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:250px;height:250px;border-radius:50%;
+    background:var(--grad);filter:blur(60px);opacity:.5;
+    animation:pulse 3s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.1)}}
+
+  /* ============ FEATURES ============ */
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2rem}
+  .feature-card{
+    padding:2rem;background:var(--card);border:1px solid var(--border);
+    border-radius:20px;transition:.4s;position:relative;overflow:hidden;
+    backdrop-filter:blur(20px);
+  }
+  .feature-card::before{
+    content:'';position:absolute;inset:0;background:var(--grad);
+    opacity:0;transition:.4s;z-index:-1;
+  }
+  .feature-card:hover{transform:translateY(-10px);border-color:transparent;box-shadow:var(--glow)}
+  .feature-icon{
+    width:60px;height:60px;border-radius:15px;background:var(--grad);
+    display:flex;align-items:center;justify-content:center;font-size:1.8rem;
+    margin-bottom:1.2rem;
+  }
+  .feature-card h3{margin-bottom:.7rem;font-size:1.25rem}
+  .feature-card p{color:var(--muted);font-size:.95rem}
+
+  /* ============ LANGUAGES ============ */
+  .lang-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.5rem}
+  .lang-card{
+    padding:2rem 1.5rem;background:var(--card);border:1px solid var(--border);
+    border-radius:20px;text-align:center;transition:.4s;cursor:pointer;
+    backdrop-filter:blur(20px);
+  }
+  .lang-card:hover{transform:translateY(-8px) scale(1.03);border-color:var(--primary);box-shadow:var(--glow)}
+  .lang-flag{font-size:3.5rem;margin-bottom:1rem;display:block}
+  .lang-name{font-weight:700;font-size:1.1rem;margin-bottom:.3rem}
+  .lang-meta{color:var(--muted);font-size:.85rem}
+
+  /* ============ DASHBOARD PREVIEW ============ */
+  .dashboard{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:24px;padding:2rem;backdrop-filter:blur(20px);
+    max-width:1000px;margin:0 auto;
+  }
+  .dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-bottom:2rem}
+  .dash-card{
+    padding:1.5rem;background:rgba(255,255,255,.03);
+    border:1px solid var(--border);border-radius:16px;transition:.3s;
+  }
+  .dash-card:hover{transform:translateY(-3px);border-color:var(--primary)}
+  .dash-label{color:var(--muted);font-size:.85rem;margin-bottom:.5rem}
+  .dash-value{font-size:2rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .dash-sub{color:var(--muted);font-size:.8rem;margin-top:.3rem}
+  .progress-section{padding:1.5rem;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px}
+  .progress-item{margin-bottom:1.2rem}
+  .progress-item:last-child{margin-bottom:0}
+  .progress-head{display:flex;justify-content:space-between;margin-bottom:.5rem;font-size:.9rem}
+  .progress-bar{height:8px;background:rgba(255,255,255,.08);border-radius:10px;overflow:hidden}
+  .progress-fill{height:100%;background:var(--grad);border-radius:10px;width:0;transition:width 1.5s ease}
+
+  /* ============ TESTIMONIALS ============ */
+  .testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem}
+  .test-card{
+    padding:2rem;background:var(--card);border:1px solid var(--border);
+    border-radius:20px;backdrop-filter:blur(20px);transition:.4s;
+  }
+  .test-card:hover{transform:translateY(-8px);border-color:var(--primary);box-shadow:var(--glow)}
+  .stars{color:#fbbf24;margin-bottom:1rem;font-size:1.1rem}
+  .test-text{color:var(--muted);margin-bottom:1.5rem;font-style:italic}
+  .test-user{display:flex;align-items:center;gap:1rem}
+  .test-avatar{
+    width:50px;height:50px;border-radius:50%;background:var(--grad);
+    display:flex;align-items:center;justify-content:center;font-weight:700;
+  }
+  .test-name{font-weight:700}
+  .test-role{color:var(--muted);font-size:.85rem}
+
+  /* ============ PRICING ============ */
+  .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;max-width:900px;margin:0 auto}
+  .price-card{
+    padding:2.5rem 2rem;background:var(--card);border:1px solid var(--border);
+    border-radius:24px;backdrop-filter:blur(20px);transition:.4s;position:relative;
+  }
+  .price-card:hover{transform:translateY(-10px);box-shadow:var(--glow)}
+  .price-card.featured{border-color:var(--primary);background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(236,72,153,.05))}
+  .price-badge{
+    position:absolute;top:-12px;right:20px;padding:.3rem 1rem;
+    background:var(--grad);border-radius:50px;font-size:.75rem;font-weight:700;
+  }
+  .price-name{font-size:1.2rem;color:var(--muted);margin-bottom:.5rem}
+  .price-amount{font-size:3rem;font-weight:800;margin-bottom:.3rem}
+  .price-amount span{font-size:1rem;color:var(--muted);font-weight:400}
+  .price-features{list-style:none;margin:1.5rem 0}
+  .price-features li{padding:.6rem 0;color:var(--muted);display:flex;align-items:center;gap:.5rem}
+  .price-features li::before{content:'✓';color:var(--accent);font-weight:700}
+  .price-card .btn{width:100%;justify-content:center;margin-top:1rem}
+
+  /* ============ FAQ ============ */
+  .faq-list{max-width:800px;margin:0 auto}
+  .faq-item{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:16px;margin-bottom:1rem;overflow:hidden;
+    backdrop-filter:blur(20px);transition:.3s;
+  }
+  .faq-item.active{border-color:var(--primary)}
+  .faq-q{
+    padding:1.3rem 1.5rem;display:flex;justify-content:space-between;
+    align-items:center;cursor:pointer;font-weight:600;
+  }
+  .faq-q .icon{transition:.3s;font-size:1.5rem;color:var(--primary)}
+  .faq-item.active .icon{transform:rotate(45deg)}
+  .faq-a{
+    max-height:0;overflow:hidden;transition:.4s;
+    padding:0 1.5rem;color:var(--muted);
+  }
+  .faq-item.active .faq-a{max-height:200px;padding:0 1.5rem 1.3rem}
+
+  /* ============ CONTACT/FOOTER ============ */
+  .contact-box{
+    max-width:600px;margin:0 auto 4rem;text-align:center;
+    padding:3rem 2rem;background:var(--card);border:1px solid var(--border);
+    border-radius:24px;backdrop-filter:blur(20px);
+  }
+  .contact-form{display:flex;gap:1rem;margin-top:1.5rem;flex-wrap:wrap;justify-content:center}
+  .contact-form input{
+    flex:1;min-width:220px;padding:.9rem 1.3rem;
+    background:rgba(255,255,255,.05);border:1px solid var(--border);
+    border-radius:50px;color:var(--text);font-size:1rem;outline:none;transition:.3s;
+  }
+  .contact-form input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.2)}
+  footer{padding:3rem 6% 2rem;border-top:1px solid var(--border);text-align:center}
+  .socials{display:flex;justify-content:center;gap:1rem;margin-bottom:1.5rem}
+  .social{
+    width:45px;height:45px;border-radius:50%;background:var(--card);
+    border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+    transition:.3s;font-size:1.1rem;
+  }
+  .social:hover{background:var(--grad);transform:translateY(-3px);border-color:transparent}
+  .footer-links{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin-bottom:1.5rem;list-style:none}
+  .footer-links a{color:var(--muted);transition:.3s;font-size:.95rem}
+  .footer-links a:hover{color:var(--primary)}
+  .copyright{color:var(--muted);font-size:.85rem}
+
+  /* ============ SCROLL REVEAL ============ */
+  .reveal{opacity:0;transform:translateY(40px);transition:.8s ease}
+  .reveal.visible{opacity:1;transform:translateY(0)}
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:768px){
+    .nav-links{
+      position:fixed;top:0;right:-100%;width:75%;height:100vh;
+      background:rgba(10,10,20,.98);backdrop-filter:blur(20px);
+      flex-direction:column;justify-content:center;align-items:center;
+      gap:2.5rem;transition:.4s;
+    }
+    .nav-links.active{right:0}
+    .hamburger{display:flex}
+    section{padding:80px 5%}
+    .hero{padding-top:100px}
+    .hero-visual{height:400px;margin:0 auto}
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating background blobs -->
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+
+<!-- Navbar -->
+<nav id="navbar">
+  <div class="logo">🌐 LinguaFlow</div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#languages">Languages</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero" id="home">
+  <div class="hero-content reveal">
+    <span class="hero-badge">✨ Master 30+ languages</span>
+    <h1>Learn any <span>language</span> the smart way</h1>
+    <p>Bite-sized lessons, daily quizzes, and AI-style practice that fits your life. Build fluency in just 10 minutes a day.</p>
+    <div class="hero-buttons">
+      <a href="#features" class="btn btn-primary">Start Learning →</a>
+      <a href="#languages" class="btn btn-outline">Explore Languages</a>
+    </div>
+  </div>
+  <div class="hero-visual reveal">
+    <div class="hero-orb"></div>
+    <div class="float-card fc-1">
+      <div class="flag">🇯🇵</div>
+      <div class="word">こんにちは</div>
+      <div class="trans">Hello</div>
+    </div>
+    <div class="float-card fc-2">
+      <div class="flag">🇪🇸</div>
+      <div class="word">Hola</div>
+      <div class="trans">Hello</div>
+    </div>
+    <div class="float-card fc-3">
+      <div class="flag">🇫🇷</div>
+      <div class="word">Bonjour</div>
+      <div class="trans">Hello</div>
+    </div>
+    <div class="float-card fc-4">
+      <div class="flag">🇰🇷</div>
+      <div class="word">안녕</div>
+      <div class="trans">Hello</div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features">
+  <h2 class="reveal">Everything you need to <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">succeed</span></h2>
+  <p class="section-sub reveal">Powerful tools designed to make language learning effective and enjoyable.</p>
+  <div class="features-grid">
+    <div class="feature-card reveal"><div class="feature-icon">📚</div><h3>Vocabulary Practice</h3><p>Build your word bank with flashcards and spaced repetition that actually works.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">🎯</div><h3>Daily Quizzes</h3><p>Fresh challenges every day to keep your skills sharp and your streak alive.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">🎙️</div><h3>Pronunciation Practice</h3><p>Speak with confidence using interactive pronunciation drills and feedback.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">📊</div><h3>Progress Tracking</h3><p>Visualize your journey with detailed stats, streaks, and skill breakdowns.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">🎮</div><h3>Gamified Learning</h3><p>Earn XP, level up, unlock badges, and compete on leaderboards with friends.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">🧠</div><h3>Smart Reviews</h3><p>Our adaptive system surfaces what you need to review at the perfect moment.</p></div>
+  </div>
+</section>
+
+<!-- Languages -->
+<section id="languages">
+  <h2 class="reveal">Pick your <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">language</span></h2>
+  <p class="section-sub reveal">From global classics to rising favorites — find your match.</p>
+  <div class="lang-grid">
+    <div class="lang-card reveal"><span class="lang-flag">🇬🇧</span><div class="lang-name">English</div><div class="lang-meta">1.5B speakers</div></div>
+    <div class="lang-card reveal"><span class="lang-flag">🇯🇵</span><div class="lang-name">Japanese</div><div class="lang-meta">125M speakers</div></div>
+    <div class="lang-card reveal"><span class="lang-flag">🇰🇷</span><div class="lang-name">Korean</div><div class="lang-meta">77M speakers</div></div>
+    <div class="lang-card reveal"><span class="lang-flag">🇪🇸</span><div class="lang-name">Spanish</div><div class="lang-meta">559M speakers</div></div>
+    <div class="lang-card reveal"><span class="lang-flag">🇫🇷</span><div class="lang-name">French</div><div class="lang-meta">300M speakers</div></div>
+    <div class="lang-card reveal"><span class="lang-flag">🇮🇳</span><div class="lang-name">Hindi</div><div class="lang-meta">600M speakers</div></div>
+  </div>
+</section>
+
+<!-- Dashboard Preview -->
+<section id="dashboard-section">
+  <h2 class="reveal">Your learning <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">dashboard</span></h2>
+  <p class="section-sub reveal">Track everything that matters, all in one beautiful place.</p>
+  <div class="dashboard reveal">
+    <div class="dash-grid">
+      <div class="dash-card"><div class="dash-label">🔥 Current Streak</div><div class="dash-value">47</div><div class="dash-sub">days in a row</div></div>
+      <div class="dash-card"><div class="dash-label">📖 Lessons Completed</div><div class="dash-value">238</div><div class="dash-sub">+12 this week</div></div>
+      <div class="dash-card"><div class="dash-label">⚡ XP Points</div><div class="dash-value">14,520</div><div class="dash-sub">Level 28</div></div>
+      <div class="dash-card"><div class="dash-label">🏆 Badges</div><div class="dash-value">24</div><div class="dash-sub">3 new unlocked</div></div>
+    </div>
+    <div class="progress-section">
+      <div class="progress-item"><div class="progress-head"><span>🇯🇵 Japanese — Beginner</span><span>78%</span></div><div class="progress-bar"><div class="progress-fill" data-w="78"></div></div></div>
+      <div class="progress-item"><div class="progress-head"><span>🇪🇸 Spanish — Intermediate</span><span>54%</span></div><div class="progress-bar"><div class="progress-fill" data-w="54"></div></div></div>
+      <div class="progress-item"><div class="progress-head"><span>🇫🇷 French — Advanced</span><span>92%</span></div><div class="progress-bar"><div class="progress-fill" data-w="92"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section id="testimonials">
+  <h2 class="reveal">Loved by <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">learners worldwide</span></h2>
+  <p class="section-sub reveal">Real stories from real students.</p>
+  <div class="testimonials-grid">
+    <div class="test-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="test-text">"I finally held my first full conversation in Japanese after just 3 months. The daily quizzes kept me going!"</p>
+      <div class="test-user"><div class="test-avatar">EM</div><div><div class="test-name">Emma Marshall</div><div class="test-role">Designer • UK</div></div></div>
+    </div>
+    <div class="test-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="test-text">"The gamified approach is addictive. I went from zero Spanish to ordering tapas confidently in Madrid."</p>
+      <div class="test-user"><div class="test-avatar">RK</div><div><div class="test-name">Ravi Kapoor</div><div class="test-role">Engineer • India</div></div></div>
+    </div>
+    <div class="test-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="test-text">"Best language app I've tried. The pronunciation feedback is honestly next-level. Worth every minute."</p>
+      <div class="test-user"><div class="test-avatar">SO</div><div><div class="test-name">Sophie Olsen</div><div class="test-role">Student • Norway</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section id="pricing">
+  <h2 class="reveal">Simple, <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">honest pricing</span></h2>
+  <p class="section-sub reveal">Start free, upgrade when you're ready.</p>
+  <div class="pricing-grid">
+    <div class="price-card reveal">
+      <div class="price-name">Free</div>
+      <div class="price-amount">$0<span>/month</span></div>
+      <p style="color:var(--muted);font-size:.9rem">Perfect for getting started.</p>
+      <ul class="price-features">
+        <li>3 languages</li>
+        <li>Daily quizzes</li>
+        <li>Basic progress tracking</li>
+        <li>Community access</li>
+      </ul>
+      <button class="btn btn-outline">Get Started</button>
+    </div>
+    <div class="price-card featured reveal">
+      <div class="price-badge">POPULAR</div>
+      <div class="price-name">Premium</div>
+      <div class="price-amount">$9<span>/month</span></div>
+      <p style="color:var(--muted);font-size:.9rem">For serious learners.</p>
+      <ul class="price-features">
+        <li>All 30+ languages</li>
+        <li>Unlimited lessons</li>
+        <li>Pronunciation coach</li>
+        <li>Offline mode</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="btn btn-primary">Go Premium</button>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <h2 class="reveal">Frequently asked <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">questions</span></h2>
+  <p class="section-sub reveal">Answers to what learners ask most.</p>
+  <div class="faq-list">
+    <div class="faq-item reveal"><div class="faq-q">Is the app really free to start?<span class="icon">+</span></div><div class="faq-a"><p>Yes! Our Free plan gives you access to 3 languages and daily lessons with no time limit.</p></div></div>
+    <div class="faq-item reveal"><div class="faq-q">How long until I can hold a conversation?<span class="icon">+</span></div><div class="faq-a"><p>Most learners reach basic conversation in 3–6 months with just 15 minutes of daily practice.</p></div></div>
+    <div class="faq-item reveal"><div class="faq-q">Can I learn multiple languages at once?<span class="icon">+</span></div><div class="faq-a"><p>Absolutely. Premium users can switch between any of our 30+ languages anytime.</p></div></div>
+    <div class="faq-item reveal"><div class="faq-q">Does it work offline?<span class="icon">+</span></div><div class="faq-a"><p>Premium subscribers can download lessons for full offline learning on mobile.</p></div></div>
+    <div class="faq-item reveal"><div class="faq-q">Can I cancel anytime?<span class="icon">+</span></div><div class="faq-a"><p>Of course. Cancel with one click — no questions asked, no hidden fees.</p></div></div>
+  </div>
+</section>
+
+<!-- Contact + Footer -->
+<section id="contact" style="padding-bottom:40px">
+  <div class="contact-box reveal">
+    <h2 style="margin-bottom:.5rem">Stay in the loop</h2>
+    <p style="color:var(--muted)">Get learning tips, new features, and language hacks in your inbox.</p>
+    <form class="contact-form" id="contactForm">
+      <input type="email" placeholder="your@email.com" required />
+      <button type="submit" class="btn btn-primary">Subscribe</button>
+    </form>
+    <p id="formMsg" style="margin-top:1rem;color:var(--accent);min-height:1.2rem"></p>
+  </div>
+</section>
+
+<footer>
+  <div class="socials">
+    <a href="#" class="social">🐦</a>
+    <a href="#" class="social">📘</a>
+    <a href="#" class="social">📷</a>
+    <a href="#" class="social">💼</a>
+    <a href="#" class="social">▶️</a>
+  </div>
+  <ul class="footer-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#languages">Languages</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <p class="copyright">© 2026 LinguaFlow. Crafted with ❤️ for language lovers.</p>
+</footer>
+
+<script>
+  /* ===== Navbar scroll ===== */
+  const nav = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  });
+
+  /* ===== Hamburger menu ===== */
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
+    navLinks.classList.toggle('active');
+  });
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.addEventListener('click', () => {
+      hamburger.classList.remove('active');
+      navLinks.classList.remove('active');
+    });
+  });
+
+  /* ===== FAQ accordion ===== */
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.querySelector('.faq-q').addEventListener('click', () => {
+      const wasActive = item.classList.contains('active');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+      if (!wasActive) item.classList.add('active');
+    });
+  });
+
+  /* ===== Scroll reveal + progress bar fill ===== */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        // Trigger progress bars inside dashboard
+        if (e.target.classList.contains('dashboard')) {
+          e.target.querySelectorAll('.progress-fill').forEach(p => {
+            p.style.width = p.dataset.w + '%';
+          });
+        }
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  /* ===== Contact form ===== */
+  document.getElementById('contactForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('formMsg');
+    msg.textContent = '✓ Thanks! You\'re on the list.';
+    e.target.reset();
+    setTimeout(() => msg.textContent = '', 4000);
+  });
+</script>
+</body>
+</html>
